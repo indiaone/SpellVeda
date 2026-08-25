@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Book/Dictionary base -->
+    <path
+        android:fillColor="@color/spellveda_deep_blue"
+        android:pathData="M30,50 L78,50 C81,50 83,52 83,55 L83,85 C83,88 81,90 78,90 L30,90 C27,90 25,88 25,85 L25,55 C25,52 27,50 30,50 Z" />
+
+    <!-- Book Pages detail -->
+    <path
+        android:fillColor="#EEEEEE"
+        android:pathData="M30,53 L78,53 L78,56 L30,56 Z" />
+
+    <!-- Letter 'S' on the book -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M50,65 C48,65 47,66 47,67 C47,68 48,69 50,70 C52,71 53,72 53,73 C53,74 52,75 50,75 C48,75 47,74 47,73 L45,73 C45,76 47,77 50,77 C53,77 55,76 55,73 C55,71 54,70 52,69 C50,68 49,67 49,66 C49,65 50,64 52,64 C54,64 55,65 55,66 L57,66 C57,63 54,62 52,62 C50,62 50,65 50,65 Z" />
+
+    <!-- Bee -->
+    <group
+        android:translateX="54"
+        android:translateY="40">
+
+        <!-- Wings (Transparent white) -->
+        <path
+            android:fillColor="#80FFFFFF"
+            android:pathData="M-15,-5 C-25,-15 -10,-25 0,-10 C-10,-25 5,-15 -5,-5 Z" />
+        <path
+            android:fillColor="#80FFFFFF"
+            android:pathData="M15,-5 C25,-15 10,-25 0,-10 C10,-25 -5,-15 5,-5 Z" />
+
+        <!-- Bee Body -->
+        <path
+            android:fillColor="@color/spellveda_charcoal"
+            android:pathData="M-12,0 A12,14 0,1,0 12,0 A12,14 0,1,0 -12,0 Z" />
+
+        <!-- Bee Stripes -->
+        <path
+            android:fillColor="@color/spellveda_yellow"
+            android:pathData="M-11,-4 L11,-4 L11,0 L-11,0 Z" />
+        <path
+            android:fillColor="@color/spellveda_yellow"
+            android:pathData="M-10,4 L10,4 L10,8 L-10,8 Z" />
+
+        <!-- Bee Head -->
+        <path
+            android:fillColor="@color/spellveda_charcoal"
+            android:pathData="M-7,-14 A7,7 0,1,0 7,-14 A7,7 0,1,0 -7,-14 Z" />
+
+        <!-- Eyes -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M-3,-16 A1.5,1.5 0,1,0 0,-16 A1.5,1.5 0,1,0 -3,-16 Z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M1,-16 A1.5,1.5 0,1,0 4,-16 A1.5,1.5 0,1,0 1,-16 Z" />
+
+        <!-- Antennae -->
+        <path
+            android:strokeColor="@color/spellveda_charcoal"
+            android:strokeWidth="1"
+            android:pathData="M-3,-20 L-5,-24 M3,-20 L5,-24" />
+    </group>
+
+</vector>
