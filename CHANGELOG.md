@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2026-08-27
+
+### Fixed and improved
+- Moved fastlane metadata to the repository root for F-Droid compatibility.
+- Added the launcher icon and phone screenshots under the standard en-US/images paths.
+- Replaced README placeholder screenshots with the project’s release media.
+
 ## [0.2.0] - 2026-08-26
 
 ### Fixed and improved

@@ -34,7 +34,7 @@
 - **Kotlin** 2.0.0 or higher.
 - **Min SDK**: 24 (Android 7.0)
 - **Target SDK**: 37 (Android 15)
-- **Current Version**: 0.2.0
+- **Current Version**: 0.2.1
 
 ### Installation
 
@@ -48,9 +48,9 @@
 
 ## 📱 Screenshots
 
-| Quiz Screen | Category Selection | Settings |
+| Quiz Screen | Learning Mode | Settings |
 | :---: | :---: | :---: |
-| ![Quiz](https://via.placeholder.com/200x400?text=Quiz+Screen) | ![Categories](https://via.placeholder.com/200x400?text=Categories) | ![Settings](https://via.placeholder.com/200x400?text=Settings) |
+| ![Quiz](fastlane/metadata/android/en-US/images/phoneScreenshots/01_quiz.png) | ![Learning](fastlane/metadata/android/en-US/images/phoneScreenshots/02_learning.png) | ![Settings](fastlane/metadata/android/en-US/images/phoneScreenshots/03_settings.png) |
 
 ## 🤝 Contributing
 

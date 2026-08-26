@@ -1,0 +1,1 @@
+Moved fastlane metadata to the repository root and added the app icon and phone screenshots for F-Droid.
