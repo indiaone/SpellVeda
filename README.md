@@ -40,7 +40,7 @@
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/SpellVeda.git
+   git clone https://github.com/indiaone/SpellVeda.git
    ```
 2. Open the project in Android Studio.
 3. Sync the project with Gradle files.

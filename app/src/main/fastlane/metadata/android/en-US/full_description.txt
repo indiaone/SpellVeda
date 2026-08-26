@@ -1,0 +1,11 @@
+SpellVeda is a modern Spelling Bee application designed to help users improve their spelling skills through interactive quizzes and learning modes.
+
+Features:
+- High-quality Text-to-Speech (TTS) engine.
+- Dual Modes: Quiz for testing and Learning for definitions and examples.
+- Categorized difficulty levels.
+- Fully customizable TTS settings (voice and speech rate).
+- Modern Material 3 UI with Dark Mode.
+- Completely offline functionality.
+
+Built with Jetpack Compose and Room. Free and Open Source.
