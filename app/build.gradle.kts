@@ -6,13 +6,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.spellveda"
+    namespace = "com.srikanthg.spellveda"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.example.spellveda"
+        applicationId = "com.srikanthg.spellveda"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
