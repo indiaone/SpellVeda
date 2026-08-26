@@ -52,6 +52,20 @@ class WordRepository(private val wordDao: WordDao) {
         wordDao.update(word)
     }
 
+    suspend fun updateWord(
+        original: WordEntity,
+        updated: WordEntity
+    ): Boolean {
+        return wordDao.updateWord(
+            oldCategory = original.category,
+            oldWord = original.word,
+            newCategory = updated.category,
+            newWord = updated.word,
+            definition = updated.definition,
+            exampleUsage = updated.exampleUsage
+        ) > 0
+    }
+
     suspend fun deleteWord(word: WordEntity) {
         wordDao.delete(word)
     }

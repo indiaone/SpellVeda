@@ -16,6 +16,23 @@ interface WordDao {
     @Update
     suspend fun update(word: WordEntity)
 
+    @Query("""
+        UPDATE words
+        SET category = :newCategory,
+            word = :newWord,
+            definition = :definition,
+            example_usage = :exampleUsage
+        WHERE category = :oldCategory AND word = :oldWord
+    """)
+    suspend fun updateWord(
+        oldCategory: Int,
+        oldWord: String,
+        newCategory: Int,
+        newWord: String,
+        definition: String?,
+        exampleUsage: String?
+    ): Int
+
     @Delete
     suspend fun delete(word: WordEntity)
 

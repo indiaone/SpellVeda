@@ -10,6 +10,9 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.srikanthg.spellveda.data.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -32,28 +35,23 @@ class SettingsViewModel(
     private val _selectedCategory = MutableStateFlow(1)
     private val _availableVoices = MutableStateFlow<List<Voice>>(emptyList())
     private val _searchQuery = MutableStateFlow("")
+    private val _speechRate = MutableStateFlow(1.0f)
     private var tts: TextToSpeech? = null
+    private var speechRateSaveJob: Job? = null
 
     init {
         tts = TextToSpeech(application, this)
         
-        // Collect preferences and apply to TTS
+        // Keep the slider responsive while applying persisted settings whenever they change.
         viewModelScope.launch {
             userPreferences.speechRateFlow.collect { rate ->
+                _speechRate.value = rate
                 tts?.setSpeechRate(rate)
-            }
-        }
-        
-        viewModelScope.launch {
-            userPreferences.voiceIdFlow.collect { voiceId ->
-                val voice = _availableVoices.value.find { it.name == voiceId }
-                if (voice != null) {
-                    tts?.voice = voice
-                }
             }
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     val pagedWords: Flow<PagingData<WordEntity>> = _searchQuery
         .debounce(300)
         .flatMapLatest { query ->
@@ -61,9 +59,9 @@ class SettingsViewModel(
         }
         .cachedIn(viewModelScope)
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     val uiState: StateFlow<SettingsUiState> = combine(
-        combine(_selectedCategory, userPreferences.voiceIdFlow, userPreferences.speechRateFlow) { c, v, s -> Triple(c, v, s) },
+        combine(_selectedCategory, userPreferences.voiceIdFlow, _speechRate) { c, v, s -> Triple(c, v, s) },
         combine(userPreferences.appModeFlow, _availableVoices, _searchQuery) { a, v, q -> Triple(a, v, q) }
     ) { (category, voiceId, speechRate), (appMode, voices, searchQuery) ->
         SettingsUiState(category, voiceId, speechRate, appMode, voices, false, searchQuery)
@@ -83,15 +81,20 @@ class SettingsViewModel(
             
             _availableVoices.value = englishVoices
             
-            // Set default if none selected
+            // Restore the saved voice, or persist a sensible English default once.
             viewModelScope.launch {
-                if (userPreferences.voiceIdFlow.first() == null && englishVoices.isNotEmpty()) {
-                    val defaultVoice = englishVoices.find { it.locale.country == "IN" } ?: englishVoices.first()
-                    userPreferences.updateVoiceId(defaultVoice.name)
+                val savedVoiceId = userPreferences.voiceIdFlow.first()
+                val selectedVoice = savedVoiceId?.let { id -> englishVoices.find { it.name == id } }
+                val voice = selectedVoice ?: englishVoices.find { it.locale.country == "IN" } ?: englishVoices.firstOrNull()
+                if (voice != null) {
+                    tts?.voice = voice
+                    if (savedVoiceId != voice.name) {
+                        userPreferences.updateVoiceId(voice.name)
+                    }
                 }
-                
-                // Initialize speech rate
+
                 val currentRate = userPreferences.speechRateFlow.first()
+                _speechRate.value = currentRate
                 tts?.setSpeechRate(currentRate)
             }
         }
@@ -108,15 +111,23 @@ class SettingsViewModel(
     }
 
     fun setVoiceId(voiceId: String) {
+        _availableVoices.value.find { it.name == voiceId }?.let { voice ->
+            tts?.voice = voice
+        }
         viewModelScope.launch {
             userPreferences.updateVoiceId(voiceId)
         }
     }
 
     fun setSpeechRate(rate: Float) {
-        viewModelScope.launch {
-            userPreferences.updateSpeechRate(rate)
-            tts?.setSpeechRate(rate)
+        val normalizedRate = rate.coerceIn(0.5f, 2.0f)
+        _speechRate.value = normalizedRate
+        tts?.setSpeechRate(normalizedRate)
+
+        speechRateSaveJob?.cancel()
+        speechRateSaveJob = viewModelScope.launch {
+            delay(250)
+            userPreferences.updateSpeechRate(normalizedRate)
         }
     }
 
@@ -131,6 +142,7 @@ class SettingsViewModel(
     }
 
     override fun onCleared() {
+        speechRateSaveJob?.cancel()
         super.onCleared()
         tts?.stop()
         tts?.shutdown()
@@ -147,9 +159,9 @@ class SettingsViewModel(
         }
     }
 
-    fun updateWord(wordEntity: WordEntity) {
+    fun updateWord(original: WordEntity, updated: WordEntity) {
         viewModelScope.launch {
-            repository.updateWord(wordEntity)
+            repository.updateWord(original, updated)
         }
     }
 

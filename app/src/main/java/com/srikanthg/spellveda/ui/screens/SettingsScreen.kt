@@ -2,6 +2,8 @@ package com.srikanthg.spellveda.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -37,6 +39,7 @@ fun SettingsScreen(
     val pagedWords = viewModel.pagedWords.collectAsLazyPagingItems()
     var showAddDialog by remember { mutableStateOf(false) }
     var wordToEdit by remember { mutableStateOf<WordEntity?>(null) }
+    var wordToDelete by remember { mutableStateOf<WordEntity?>(null) }
 
     Scaffold(
         topBar = {
@@ -197,7 +200,7 @@ fun SettingsScreen(
 
             // Word CRUD Section
             Text(
-                "Manage Words (${pagedWords.itemCount} total)",
+                if (uiState.searchQuery.isBlank()) "Manage Words" else "Matching Words",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -226,7 +229,7 @@ fun SettingsScreen(
                             WordItem(
                                 word = word,
                                 onEdit = { wordToEdit = it },
-                                onDelete = { viewModel.deleteWord(it) }
+                                onDelete = { wordToDelete = it }
                             )
                         }
                     }
@@ -271,8 +274,29 @@ fun SettingsScreen(
             wordToEdit = word,
             onDismiss = { wordToEdit = null },
             onConfirm = { w, d, u, c ->
-                viewModel.updateWord(word.copy(word = w, definition = d, exampleUsage = u, category = c))
+                viewModel.updateWord(word, word.copy(word = w.trim(), definition = d.trim(), exampleUsage = u.trim(), category = c))
                 wordToEdit = null
+            }
+        )
+    }
+
+    wordToDelete?.let { word ->
+        AlertDialog(
+            onDismissRequest = { wordToDelete = null },
+            title = { Text("Delete word?") },
+            text = { Text("Delete \"${word.word}\" from the word list? This action cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteWord(word)
+                        wordToDelete = null
+                    }
+                ) {
+                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { wordToDelete = null }) { Text("Cancel") }
             }
         )
     }
@@ -322,10 +346,31 @@ fun WordDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (wordToEdit == null) "Add Word" else "Edit Word") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(value = word, onValueChange = { word = it }, label = { Text("Word") })
-                OutlinedTextField(value = definition, onValueChange = { definition = it }, label = { Text("Definition") })
-                OutlinedTextField(value = usage, onValueChange = { usage = it }, label = { Text("Usage") })
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedTextField(
+                    value = word,
+                    onValueChange = { word = it },
+                    label = { Text("Word") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = definition,
+                    onValueChange = { definition = it },
+                    label = { Text("Definition") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = usage,
+                    onValueChange = { usage = it },
+                    label = { Text("Usage") },
+                    modifier = Modifier.fillMaxWidth()
+                )
                 
                 Text("Category", style = MaterialTheme.typography.labelMedium)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -341,7 +386,7 @@ fun WordDialog(
         },
         confirmButton = {
             Button(
-                onClick = { onConfirm(word, definition, usage, category) },
+                onClick = { onConfirm(word.trim(), definition.trim(), usage.trim(), category) },
                 enabled = word.isNotBlank() && definition.isNotBlank()
             ) {
                 Text("Confirm")

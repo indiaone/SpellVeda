@@ -60,7 +60,7 @@ class UserPreferences(private val context: Context) {
             }
         }
         .map { preferences ->
-            preferences[PreferencesKeys.SPEECH_RATE] ?: 1.0f
+            (preferences[PreferencesKeys.SPEECH_RATE] ?: 1.0f).coerceIn(MIN_SPEECH_RATE, MAX_SPEECH_RATE)
         }
 
     suspend fun updateAppMode(mode: AppMode) {
@@ -77,7 +77,12 @@ class UserPreferences(private val context: Context) {
 
     suspend fun updateSpeechRate(rate: Float) {
         context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.SPEECH_RATE] = rate
+            preferences[PreferencesKeys.SPEECH_RATE] = rate.coerceIn(MIN_SPEECH_RATE, MAX_SPEECH_RATE)
         }
+    }
+
+    private companion object {
+        const val MIN_SPEECH_RATE = 0.5f
+        const val MAX_SPEECH_RATE = 2.0f
     }
 }

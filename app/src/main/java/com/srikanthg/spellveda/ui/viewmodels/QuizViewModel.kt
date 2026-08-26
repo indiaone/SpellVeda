@@ -77,8 +77,17 @@ class QuizViewModel(
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
-            val result = tts?.setLanguage(Locale("en", "IN"))
-            if (result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED) {
+            val preferredLocale = Locale.Builder().setLanguage("en").setRegion("IN").build()
+            val preferredResult = tts?.setLanguage(preferredLocale) ?: TextToSpeech.ERROR
+            val result = if (
+                preferredResult == TextToSpeech.LANG_MISSING_DATA ||
+                preferredResult == TextToSpeech.LANG_NOT_SUPPORTED
+            ) {
+                tts?.setLanguage(Locale.ENGLISH) ?: TextToSpeech.ERROR
+            } else {
+                preferredResult
+            }
+            if (result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED && result != TextToSpeech.ERROR) {
                 // Apply voice preference
                 applyVoicePreference()
                 
@@ -112,7 +121,7 @@ class QuizViewModel(
         val currentState = _uiState.value
         if (currentState.isFinished || currentState.feedback != null) return
 
-        val currentWord = currentState.words[currentState.currentIndex]
+        val currentWord = currentState.words.getOrNull(currentState.currentIndex) ?: return
         val isCorrect = currentState.userInput.trim().equals(currentWord.word, ignoreCase = true)
 
         if (isCorrect) {
