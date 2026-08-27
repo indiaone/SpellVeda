@@ -13,6 +13,8 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,10 +38,12 @@ fun SettingsScreen(
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val sessionHistory by viewModel.sessionHistory.collectAsStateWithLifecycle()
     val pagedWords = viewModel.pagedWords.collectAsLazyPagingItems()
     var showAddDialog by remember { mutableStateOf(false) }
     var wordToEdit by remember { mutableStateOf<WordEntity?>(null) }
     var wordToDelete by remember { mutableStateOf<WordEntity?>(null) }
+    var showClearHistoryDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -176,6 +180,11 @@ fun SettingsScreen(
             }
 
 
+            SessionHistorySection(
+                sessions = sessionHistory,
+                onClearHistory = { showClearHistoryDialog = true }
+            )
+
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
             // Search Bar
@@ -207,16 +216,24 @@ fun SettingsScreen(
             )
 
             if (uiState.isLoading || pagedWords.loadState.refresh is LoadState.Loading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
                     CircularProgressIndicator()
                 }
             } else if (pagedWords.itemCount == 0) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
                     Text("No words found matching \"${uiState.searchQuery}\"")
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
                     contentPadding = PaddingValues(bottom = 80.dp, start = 16.dp, end = 16.dp, top = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -280,6 +297,27 @@ fun SettingsScreen(
         )
     }
 
+    if (showClearHistoryDialog) {
+        AlertDialog(
+            onDismissRequest = { showClearHistoryDialog = false },
+            title = { Text("Clear session history?") },
+            text = { Text("This removes all saved quiz and learning sessions from this device. This cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.clearSessionHistory()
+                        showClearHistoryDialog = false
+                    }
+                ) {
+                    Text("Clear", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearHistoryDialog = false }) { Text("Cancel") }
+            }
+        )
+    }
+
     wordToDelete?.let { word ->
         AlertDialog(
             onDismissRequest = { wordToDelete = null },
@@ -300,6 +338,83 @@ fun SettingsScreen(
             }
         )
     }
+}
+
+@Composable
+fun SessionHistorySection(
+    sessions: List<com.srikanthg.spellveda.data.SessionHistoryEntity>,
+    onClearHistory: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("Session History", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                if (sessions.isNotEmpty()) {
+                    TextButton(onClick = onClearHistory) {
+                        Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Clear")
+                    }
+                }
+            }
+
+            if (sessions.isEmpty()) {
+                Text(
+                    "Completed quizzes and learning sessions will appear here.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                sessions.take(8).forEach { session ->
+                    SessionHistoryRow(session)
+                }
+                if (sessions.size > 8) {
+                    Text(
+                        "Showing the 8 most recent sessions",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SessionHistoryRow(session: com.srikanthg.spellveda.data.SessionHistoryEntity) {
+    val dateFormatter = remember { java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT) }
+    val modeLabel = if (session.appMode == AppMode.QUIZ) "Quiz" else "Learning"
+    val score = if (session.appMode == AppMode.QUIZ && session.totalItems > 0) {
+        "${(session.correctAnswers * 100 / session.totalItems)}%"
+    } else {
+        "${session.totalItems} words"
+    }
+
+    ListItem(
+        headlineContent = {
+            Text("$modeLabel · ${com.srikanthg.spellveda.data.categoryDisplayName(session.category)}")
+        },
+        supportingContent = {
+            Text("$score · ${dateFormatter.format(java.util.Date(session.completedAt))}")
+        },
+        leadingContent = {
+            Icon(
+                if (session.appMode == AppMode.QUIZ) Icons.Default.CheckCircle else Icons.Default.School,
+                contentDescription = null
+            )
+        },
+        tonalElevation = 0.dp
+    )
 }
 
 @Composable

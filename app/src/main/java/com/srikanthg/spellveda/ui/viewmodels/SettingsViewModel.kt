@@ -30,7 +30,8 @@ data class SettingsUiState(
 class SettingsViewModel(
     application: Application,
     private val repository: WordRepository,
-    private val userPreferences: UserPreferences
+    private val userPreferences: UserPreferences,
+    private val historyRepository: SessionHistoryRepository
 ) : AndroidViewModel(application), TextToSpeech.OnInitListener {
     private val _selectedCategory = MutableStateFlow(1)
     private val _availableVoices = MutableStateFlow<List<Voice>>(emptyList())
@@ -38,6 +39,13 @@ class SettingsViewModel(
     private val _speechRate = MutableStateFlow(1.0f)
     private var tts: TextToSpeech? = null
     private var speechRateSaveJob: Job? = null
+
+    val sessionHistory: StateFlow<List<SessionHistoryEntity>> = historyRepository.sessions
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList()
+        )
 
     init {
         tts = TextToSpeech(application, this)
@@ -168,6 +176,12 @@ class SettingsViewModel(
     fun deleteWord(wordEntity: WordEntity) {
         viewModelScope.launch {
             repository.deleteWord(wordEntity)
+        }
+    }
+
+    fun clearSessionHistory() {
+        viewModelScope.launch {
+            historyRepository.clearHistory()
         }
     }
 }

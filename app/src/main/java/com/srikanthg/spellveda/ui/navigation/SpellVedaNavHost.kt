@@ -23,11 +23,9 @@ fun SpellVedaNavHost() {
     val backStack = rememberNavBackStack(Route.Splash)
     val context = LocalContext.current
     
-    val repository = remember {
-        val database = SpellingBeeDatabase.getDatabase(context)
-        WordRepository(database.wordDao())
-    }
-
+    val database = remember { SpellingBeeDatabase.getDatabase(context) }
+    val repository = remember { WordRepository(database.wordDao()) }
+    val historyRepository = remember { com.srikanthg.spellveda.data.SessionHistoryRepository(database.sessionHistoryDao()) }
     val userPreferences = remember { UserPreferences(context) }
     
     NavDisplay(
@@ -76,6 +74,7 @@ fun SpellVedaNavHost() {
                                     application = context.applicationContext as Application,
                                     repository = repository,
                                     userPreferences = userPreferences,
+                                    historyRepository = historyRepository,
                                     category = r.category,
                                     questionsCount = r.questionsCount
                                 )
@@ -84,7 +83,19 @@ fun SpellVedaNavHost() {
                     )
                     QuizScreen(
                         viewModel = quizViewModel,
-                        onBack = { backStack.removeLastOrNull() }
+                        onBack = {
+                            backStack.removeLastOrNull()
+                            if (backStack.lastOrNull() is Route.QuizWizard) {
+                                backStack.removeLastOrNull()
+                            }
+                        },
+                        onRetake = {
+                            backStack.removeLastOrNull()
+                            if (backStack.lastOrNull() is Route.QuizWizard) {
+                                backStack.removeLastOrNull()
+                            }
+                            backStack.add(Route.QuizWizard(r.category))
+                        }
                     )
                 }
                 is Route.Settings -> {
@@ -94,7 +105,8 @@ fun SpellVedaNavHost() {
                                 SettingsViewModel(
                                     application = context.applicationContext as Application,
                                     repository = repository,
-                                    userPreferences = userPreferences
+                                    userPreferences = userPreferences,
+                                    historyRepository = historyRepository
                                 )
                             }
                         }

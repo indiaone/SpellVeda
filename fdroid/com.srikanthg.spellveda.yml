@@ -19,8 +19,14 @@ Description: |-
 
 RepoType: git
 Repo: https://github.com/indiaone/SpellVeda
+Binaries: https://github.com/indiaone/SpellVeda/releases/download/v%v/SpellVeda-%v-release.apk
+AllowedAPKSigningKeys: d73497396389fb7b4bdc272777ec94b4448a79579043f525f5549e800f79237a
 
 Builds:
+  - versionName: '0.3.0'
+    versionCode: 4
+    commit: v0.3.0
+    subdir: app
   - versionName: '0.2.1'
     versionCode: 3
     commit: v0.2.1
@@ -28,5 +34,5 @@ Builds:
 
 AutoUpdateMode: Version v%v
 UpdateCheckMode: Tags
-CurrentVersion: '0.2.1'
-CurrentVersionCode: 3
+CurrentVersion: '0.3.0'
+CurrentVersionCode: 4

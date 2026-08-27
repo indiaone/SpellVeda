@@ -1,5 +1,7 @@
 package com.srikanthg.spellveda.ui.screens
 
+import android.content.Context
+import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -17,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -29,18 +32,26 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.srikanthg.spellveda.ui.theme.SpellVedaTheme
 import com.srikanthg.spellveda.data.WordEntity
 import com.srikanthg.spellveda.data.AppMode
+import com.srikanthg.spellveda.data.categoryDisplayName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuizScreen(
     viewModel: QuizViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onRetake: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
     var showExitDialog by remember { mutableStateOf(false) }
 
     if (uiState.isFinished) {
-        QuizSummaryScreen(uiState = uiState, onBack = onBack)
+        QuizSummaryScreen(
+            uiState = uiState,
+            onBack = onBack,
+            onShare = { shareSessionResult(context, uiState) },
+            onRetake = onRetake
+        )
     } else {
         BackHandler {
             showExitDialog = true
@@ -277,7 +288,7 @@ fun QuizContent(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                AnimatedVisibility(visible = uiState.showDefinition || isLearningMode) {
+                AnimatedVisibility(visible = isLearningMode && uiState.showDefinition) {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
@@ -291,7 +302,7 @@ fun QuizContent(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                AnimatedVisibility(visible = uiState.showUsage || isLearningMode) {
+                AnimatedVisibility(visible = isLearningMode && uiState.showUsage) {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
@@ -385,12 +396,16 @@ fun QuizActionButton(
 @Composable
 fun QuizSummaryScreen(
     uiState: QuizUiState,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onShare: () -> Unit,
+    onRetake: () -> Unit
 ) {
+    BackHandler(onBack = onBack)
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Quiz Summary") }
+                title = { Text(if (uiState.appMode == AppMode.QUIZ) "Quiz Summary" else "Learning Summary") }
             )
         }
     ) { padding ->
@@ -403,7 +418,7 @@ fun QuizSummaryScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                "Great Job!",
+                if (uiState.appMode == AppMode.QUIZ) "Great Job!" else "Session Complete",
                 style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -420,21 +435,54 @@ fun QuizSummaryScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     val successColor = if (isSystemInDarkTheme()) Color(0xFF81C784) else Color(0xFF2E7D32)
-                    SummaryRow("Total Questions", uiState.words.size.toString())
-                    SummaryRow("Correct Answers", uiState.correctCount.toString(), successColor)
-                    SummaryRow("Wrong Answers", uiState.wrongCount.toString(), MaterialTheme.colorScheme.error)
-                    
-                    val percentage = (uiState.correctCount.toFloat() / uiState.words.size * 100).toInt()
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        "Score: $percentage%",
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Black
-                    )
+                    SummaryRow("Words Completed", uiState.words.size.toString())
+                    if (uiState.appMode == AppMode.QUIZ) {
+                        SummaryRow("Correct Answers", uiState.correctCount.toString(), successColor)
+                        SummaryRow("Wrong Answers", uiState.wrongCount.toString(), MaterialTheme.colorScheme.error)
+
+                        val percentage = if (uiState.words.isNotEmpty()) {
+                            uiState.correctCount * 100 / uiState.words.size
+                        } else {
+                            0
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            "Score: $percentage%",
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.Black
+                        )
+                    } else {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            "Keep building your vocabulary!",
+                            style = MaterialTheme.typography.titleMedium,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(48.dp))
+
+            OutlinedButton(
+                onClick = onShare,
+                modifier = Modifier.fillMaxWidth().height(56.dp)
+            ) {
+                Icon(Icons.Default.Share, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Share Result")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedButton(
+                onClick = onRetake,
+                modifier = Modifier.fillMaxWidth().height(56.dp)
+            ) {
+                Text("Take Again")
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
 
             Button(
                 onClick = onBack,
@@ -444,6 +492,18 @@ fun QuizSummaryScreen(
             }
         }
     }
+}
+
+private fun shareSessionResult(context: Context, uiState: QuizUiState) {
+    val message = createSessionShareText(uiState)
+    val modeLabel = if (uiState.appMode == AppMode.QUIZ) "Quiz" else "Learning"
+
+    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_SUBJECT, "SpellVeda $modeLabel Result")
+        putExtra(Intent.EXTRA_TEXT, message)
+    }
+    context.startActivity(Intent.createChooser(shareIntent, "Share your result"))
 }
 
 @Composable

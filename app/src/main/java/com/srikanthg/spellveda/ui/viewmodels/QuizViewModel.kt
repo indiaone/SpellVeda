@@ -29,13 +29,15 @@ data class QuizUiState(
     val isLoading: Boolean = true,
     val showDefinition: Boolean = false,
     val showUsage: Boolean = false,
-    val appMode: AppMode = AppMode.QUIZ
+    val appMode: AppMode = AppMode.QUIZ,
+    val category: Int = 0
 )
 
 class QuizViewModel(
     application: Application,
     private val repository: WordRepository,
     private val userPreferences: UserPreferences,
+    private val historyRepository: com.srikanthg.spellveda.data.SessionHistoryRepository,
     private val category: Int,
     private val questionsCount: Int
 ) : AndroidViewModel(application), TextToSpeech.OnInitListener {
@@ -45,6 +47,7 @@ class QuizViewModel(
 
     private var tts: TextToSpeech? = null
     private var isTtsInitialized = false
+    private var historyRecorded = false
     private val toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
 
     init {
@@ -64,7 +67,8 @@ class QuizViewModel(
                     appMode = appMode,
                     // In learning mode, show definition and usage by default
                     showDefinition = isLearningMode,
-                    showUsage = isLearningMode
+                    showUsage = isLearningMode,
+                    category = category
                 )
                 if (words.isNotEmpty() && isTtsInitialized) {
                     speakWord(words[0].word)
@@ -169,6 +173,7 @@ class QuizViewModel(
             speakWord(currentState.words[nextIndex].word)
         } else {
             _uiState.value = currentState.copy(isFinished = true)
+            recordCompletedSession()
         }
     }
 
@@ -180,17 +185,37 @@ class QuizViewModel(
 
     fun showAndSpeakDefinition() {
         val currentWord = _uiState.value.words.getOrNull(_uiState.value.currentIndex) ?: return
-        _uiState.value = _uiState.value.copy(showDefinition = true)
+        if (_uiState.value.appMode == AppMode.LEARNING) {
+            _uiState.value = _uiState.value.copy(showDefinition = true)
+        }
         if (isTtsInitialized) {
-            tts?.speak(currentWord.definition ?: "", TextToSpeech.QUEUE_FLUSH, null, null)
+            tts?.speak(currentWord.definition.orEmpty(), TextToSpeech.QUEUE_FLUSH, null, null)
         }
     }
 
     fun showAndSpeakUsage() {
         val currentWord = _uiState.value.words.getOrNull(_uiState.value.currentIndex) ?: return
-        _uiState.value = _uiState.value.copy(showUsage = true)
+        if (_uiState.value.appMode == AppMode.LEARNING) {
+            _uiState.value = _uiState.value.copy(showUsage = true)
+        }
         if (isTtsInitialized) {
-            tts?.speak(currentWord.exampleUsage ?: "", TextToSpeech.QUEUE_FLUSH, null, null)
+            tts?.speak(currentWord.exampleUsage.orEmpty(), TextToSpeech.QUEUE_FLUSH, null, null)
+        }
+    }
+
+    private fun recordCompletedSession() {
+        if (historyRecorded) return
+        val state = _uiState.value
+        if (state.words.isEmpty()) return
+        historyRecorded = true
+        viewModelScope.launch {
+            historyRepository.recordSession(
+                mode = state.appMode,
+                category = category,
+                totalItems = state.words.size,
+                correctAnswers = state.correctCount,
+                wrongAnswers = state.wrongCount
+            )
         }
     }
 

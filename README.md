@@ -6,13 +6,15 @@
 
 - 🎧 **Interactive Quizzes**: Test your spelling with high-quality Text-to-Speech (TTS) technology.
 - 📖 **Dual Modes**:
-  - **Quiz Mode**: A focused testing environment to sharpen your accuracy.
-  - **Learning Mode**: Provides immediate access to word definitions and usage examples as you practice.
+  - **Quiz Mode**: A focused testing environment to sharpen your accuracy, with definitions and usage spoken privately.
+  - **Learning Mode**: Shows word definitions and usage examples as you practice.
 - 🗂️ **Categorized Learning**: Words are organized into distinct categories (Difficulty 1-4) to cater to all skill levels.
 - 🔊 **Advanced TTS Customization**: Choose from different voices and adjust the speech rate to suit your listening preference.
 - 🌗 **Modern UI/UX**: Built with Jetpack Compose and Material 3, featuring a responsive design with Light and Dark mode support.
 - 💾 **Offline-First**: Powered by a local Room database, ensuring all features are accessible without an internet connection.
 - 🛠️ **Quiz Wizard**: Quickly set up custom quiz sessions with specific categories and question counts.
+- 🔁 **Retake and Share**: Start a completed session again from a fresh wizard and share results through Android’s system Sharesheet, including WhatsApp.
+- 🧾 **Session History**: Review completed Quiz and Learning Mode sessions locally and clear the saved history at any time.
 
 ## 🚀 Tech Stack
 
@@ -34,7 +36,7 @@
 - **Kotlin** 2.0.0 or higher.
 - **Min SDK**: 24 (Android 7.0)
 - **Target SDK**: 37 (Android 15)
-- **Current Version**: 0.2.1
+- **Current Version**: 0.3.0
 
 ### Installation
 

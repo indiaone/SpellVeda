@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2026-08-27
+
+### Added
+- Added persistent history for completed Quiz and Learning Mode sessions, with a clear-history control.
+- Added Android Sharesheet sharing for quiz scores and learning-session results.
+- Added a Take Again action that returns to a fresh question-count wizard.
+
+### Fixed and improved
+- Exiting an in-progress quiz now discards its state before returning to category selection.
+- Quiz Mode definition and usage actions now speak content without displaying it; Learning Mode continues to show both.
+- Added a Room migration that preserves existing word data while adding session history.
+
 ## [0.2.1] - 2026-08-27
 
 ### Fixed and improved
