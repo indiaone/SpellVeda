@@ -8,35 +8,40 @@ IssueTracker: https://github.com/indiaone/SpellVeda/issues
 AutoName: SpellVeda
 Summary: Master your spelling with this feature-rich Spelling Bee app
 Description: |-
-    SpellVeda is an offline Spelling Bee app with Quiz and Learning modes,
-    Text-to-Speech, category-based practice, and customizable speech settings.
+  SpellVeda is an offline Spelling Bee app with Quiz and Learning modes,
+  Text-to-Speech, category-based practice, and customizable speech settings.
 
 RepoType: git
 Repo: https://github.com/indiaone/SpellVeda
-Binaries:
+Binaries: 
   https://github.com/indiaone/SpellVeda/releases/download/v%v/SpellVeda-%v-release.apk
 
 Builds:
-  - versionName: 0.3.1
-    versionCode: 5
-    commit: REPLACE_WITH_RELEASE_COMMIT
+  - versionName: 0.2.1
+    versionCode: 3
+    commit: a95368ee4536b6d77dbb7e13e01af6dfb6698240
     subdir: app
     gradle:
       - yes
+    disable: Historical release; source build does not match the upstream binary
+
   - versionName: 0.3.0
     versionCode: 4
     commit: c346ecf48c33e1b2eb9b5415bbe083c0c242358b
     subdir: app
     gradle:
       - yes
-  - versionName: 0.2.1
-    versionCode: 3
-    commit: v0.2.1
+    disable: Historical release; source build does not match the upstream binary
+
+  - versionName: 0.3.1
+    versionCode: 5
+    commit: 74c9e5d65c1aec079da48dfd1007d2a40391605e
     subdir: app
     gradle:
       - yes
 
 AllowedAPKSigningKeys: d73497396389fb7b4bdc272777ec94b4448a79579043f525f5549e800f79237a
+
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
 CurrentVersion: 0.3.1
