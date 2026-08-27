@@ -36,7 +36,7 @@
 - **Kotlin** 2.0.0 or higher.
 - **Min SDK**: 24 (Android 7.0)
 - **Target SDK**: 37 (Android 15)
-- **Current Version**: 0.3.0
+- **Current Version**: 0.3.1
 
 ### Installation
 

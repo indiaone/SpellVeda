@@ -1,0 +1,3 @@
+Removed the unused Foojay toolchain resolver so F-Droid can build SpellVeda directly from source without a scanner exception.
+
+Includes all quiz reset, private quiz prompts, Android Sharesheet sharing, retake, and persistent session-history features from 0.3.0.

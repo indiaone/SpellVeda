@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] - 2026-08-27
+
+### Fixed and improved
+- Removed the unused Foojay toolchain resolver so F-Droid can build the app from source without a scanner exception.
+
 ## [0.3.0] - 2026-08-27
 
 ### Added

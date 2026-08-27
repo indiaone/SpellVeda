@@ -5,34 +5,39 @@ AuthorName: Srikanth
 SourceCode: https://github.com/indiaone/SpellVeda
 IssueTracker: https://github.com/indiaone/SpellVeda/issues
 
+AutoName: SpellVeda
 Summary: Master your spelling with this feature-rich Spelling Bee app
 Description: |-
-    SpellVeda is a modern Spelling Bee application designed to help users improve their spelling skills through interactive quizzes and learning modes.
-
-    Features:
-    - High-quality Text-to-Speech (TTS) engine.
-    - Dual Modes: Quiz for testing and Learning for definitions and examples.
-    - Categorized difficulty levels.
-    - Fully customizable TTS settings (voice and speech rate).
-    - Modern Material 3 UI with Dark Mode.
-    - Completely offline functionality.
+    SpellVeda is an offline Spelling Bee app with Quiz and Learning modes,
+    Text-to-Speech, category-based practice, and customizable speech settings.
 
 RepoType: git
 Repo: https://github.com/indiaone/SpellVeda
-Binaries: https://github.com/indiaone/SpellVeda/releases/download/v%v/SpellVeda-%v-release.apk
-AllowedAPKSigningKeys: d73497396389fb7b4bdc272777ec94b4448a79579043f525f5549e800f79237a
+Binaries:
+  https://github.com/indiaone/SpellVeda/releases/download/v%v/SpellVeda-%v-release.apk
 
 Builds:
-  - versionName: '0.3.0'
-    versionCode: 4
-    commit: v0.3.0
+  - versionName: 0.3.1
+    versionCode: 5
+    commit: REPLACE_WITH_RELEASE_COMMIT
     subdir: app
-  - versionName: '0.2.1'
+    gradle:
+      - yes
+  - versionName: 0.3.0
+    versionCode: 4
+    commit: c346ecf48c33e1b2eb9b5415bbe083c0c242358b
+    subdir: app
+    gradle:
+      - yes
+  - versionName: 0.2.1
     versionCode: 3
     commit: v0.2.1
     subdir: app
+    gradle:
+      - yes
 
-AutoUpdateMode: Version v%v
+AllowedAPKSigningKeys: d73497396389fb7b4bdc272777ec94b4448a79579043f525f5549e800f79237a
+AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: '0.3.0'
-CurrentVersionCode: 4
+CurrentVersion: 0.3.1
+CurrentVersionCode: 5
