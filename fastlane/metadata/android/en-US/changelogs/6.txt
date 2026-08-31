@@ -1,0 +1,3 @@
+Rebuilt the release with F-Droid-compatible Android APK signing tooling so upstream binary verification can compare the signed APK correctly.
+
+No app features changed; this patch retains the quiz reset, private Quiz Mode prompts, sharing, retake, and persistent session-history features from 0.3.0 and 0.3.1.
