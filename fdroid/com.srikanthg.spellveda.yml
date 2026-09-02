@@ -21,6 +21,7 @@ Builds:
     subdir: app
     gradle:
       - yes
+
   - versionName: 0.3.0
     versionCode: 4
     disable: Historical release; source build does not match the upstream binary
@@ -28,6 +29,7 @@ Builds:
     subdir: app
     gradle:
       - yes
+
   - versionName: 0.3.1
     versionCode: 5
     disable: Historical release; source build was signed with incompatible build-tools
@@ -35,6 +37,7 @@ Builds:
     subdir: app
     gradle:
       - yes
+
   - versionName: 0.3.2
     versionCode: 6
     disable: Superseded by reproducibility-fixed release 0.3.3
@@ -42,6 +45,7 @@ Builds:
     subdir: app
     gradle:
       - yes
+
   - versionName: 0.3.3
     versionCode: 7
     disable: Superseded by release 0.3.4 containing the updated words database
@@ -49,12 +53,14 @@ Builds:
     subdir: app
     gradle:
       - yes
+
   - versionName: 0.3.4
     versionCode: 8
     commit: ee148c85d427fe88b9fedc2064e2f1197ea0248f
     subdir: app
     gradle:
       - yes
+
 AllowedAPKSigningKeys: d73497396389fb7b4bdc272777ec94b4448a79579043f525f5549e800f79237a
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
