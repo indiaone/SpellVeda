@@ -1,0 +1,3 @@
+Updated the bundled word database with Dictionary API definitions and usage examples where available.
+
+This release retains deterministic release-build metadata for F-Droid reproducibility and all SpellVeda quiz, learning, sharing, retake, and session-history features.
