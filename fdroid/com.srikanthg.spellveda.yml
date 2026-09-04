@@ -5,10 +5,6 @@ AuthorName: Srikanth
 SourceCode: https://github.com/indiaone/SpellVeda
 IssueTracker: https://github.com/indiaone/SpellVeda/issues
 AutoName: SpellVeda
-Summary: Master your spelling with this feature-rich Spelling Bee app
-Description: |-
-  SpellVeda is an offline Spelling Bee app with Quiz and Learning modes,
-  Text-to-Speech, category-based practice, and customizable speech settings.
 RepoType: git
 Repo: https://github.com/indiaone/SpellVeda
 Binaries: 
